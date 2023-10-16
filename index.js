@@ -2,7 +2,7 @@ const canvas = document.querySelector('canvas');
 const c = canvas.getContext('2d');
 
 canvas.width = innerWidth;
-canvas.height = innerHeight - 30;
+canvas.height = innerHeight;
 
 const gravity = 0.5;
 
@@ -40,6 +40,23 @@ class Player {
   };
 };
 
+class Platform {
+  constructor() {
+    this.position = {
+      x: 200,
+      y: 800
+    }
+
+    this.width = 200;
+    this.height = 20;
+  }
+
+  draw() {
+    c.fillStyle = '#333';
+    c.fillRect(this.position.x, this.position.y, this.width, this.height);
+  }
+}
+
 const player = new Player();
 const keys = {
   right: {
@@ -50,10 +67,13 @@ const keys = {
   }
 };
 
+const platform = new Platform();
+
 function animate () {
   requestAnimationFrame(animate);
   c.clearRect(0, 0, canvas.width, canvas.height);
   player.update();
+  platform.draw();
 
   if (keys.right.pressed) {
     player.velocity.x = 6;
@@ -62,6 +82,10 @@ function animate () {
   } else {
     player.velocity.x = 0;
   };
+
+  if (player.position.y + player.height <= platform.position.y && player.position.y + player.height + player.velocity.y >= platform.position.y && player.position.x + player.width >= platform.position.x && player.position.x + player.width <= platform.position.x + platform.width) {
+    player.velocity.y = 0;
+  }
 };
 
 animate();
@@ -71,7 +95,8 @@ addEventListener('keydown', ({ key }) => {
     case 'a': 
       keys.left.pressed = true;
       break;
-    case 's': break;
+    case 's': 
+      break;
     case 'd': 
       keys.right.pressed = true;
       break;
@@ -86,7 +111,8 @@ addEventListener('keyup', ({ key }) => {
     case 'a': 
       keys.left.pressed = false;
       break;
-    case 's': break;
+    case 's': 
+      break;
     case 'd': 
       keys.right.pressed = false;
       break;
