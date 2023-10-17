@@ -41,11 +41,11 @@ class Player {
 };
 
 class Platform {
-  constructor() {
+  constructor({x, y}) {
     this.position = {
-      x: 200,
-      y: 800
-    }
+      x,
+      y,
+    },
 
     this.width = 200;
     this.height = 20;
@@ -67,24 +67,48 @@ const keys = {
   }
 };
 
-const platform = new Platform();
+let scrollOffset = 0;
+
+const platforms = [new Platform({x: 200, y: 300}), new Platform({x: 500, y: 170})];
 
 function animate () {
   requestAnimationFrame(animate);
   c.clearRect(0, 0, canvas.width, canvas.height);
+  platforms.forEach(platform => {
+    platform.draw();
+  });
   player.update();
-  platform.draw();
 
-  if (keys.right.pressed) {
+  if (keys.right.pressed  && player.position.x < 400) {
     player.velocity.x = 6;
-  } else if (keys.left.pressed) {
+  } else if (keys.left.pressed && player.position.x > 100) {
     player.velocity.x = -6;
   } else {
     player.velocity.x = 0;
+
+    if (keys.right.pressed) {
+      scrollOffset += 5;
+      platforms.forEach(platform => {
+        platform.position.x -= 6;
+      });
+    } else if (keys.left.pressed) {
+      scrollOffset -= 5;
+      platforms.forEach(platform => {
+        platform.position.x += 6;
+      });
+    }
   };
 
-  if (player.position.y + player.height <= platform.position.y && player.position.y + player.height + player.velocity.y >= platform.position.y && player.position.x + player.width >= platform.position.x && player.position.x + player.width <= platform.position.x + platform.width) {
-    player.velocity.y = 0;
+  // Platform Collision
+  platforms.forEach(platform => {
+    if (player.position.y + player.height <= platform.position.y && player.position.y + player.height + player.velocity.y >= platform.position.y && player.position.x + player.width >= platform.position.x && player.position.x + player.width <= platform.position.x + platform.width) {
+      player.velocity.y = 0;
+    }
+  });
+
+  // End of level
+  if (scrollOffset > 2000) {
+
   }
 };
 
@@ -101,7 +125,7 @@ addEventListener('keydown', ({ key }) => {
       keys.right.pressed = true;
       break;
     case 'w': 
-      player.velocity.y -= 12;
+      if (player.velocity.y === 0) player.velocity.y -= 12;
       break;
   };
 });
