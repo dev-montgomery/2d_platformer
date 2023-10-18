@@ -23,19 +23,34 @@ class Player {
     };
     
     this.frames = 0;
-    this.frameWidth = 40;
-    this.frameHeight = 40;
     this.characterWidth = 80;
     this.characterHeight = 80;
+
+    this.sprites = {
+      stand: {
+        right: 0,
+        left: 41
+      },
+      run: {
+        right : 81,
+        left: 121
+      },
+      jump: {
+        right: 161,
+        left: 201
+      }
+    }
+
+    this.currentSprite = this.sprites.stand.right
   };
 
   draw() {
     c.drawImage(
       spriteSheet,
-      this.frames * this.frameWidth, 
-      0, 
-      this.frameWidth, 
-      this.frameHeight,
+      this.frames * 40, 
+      this.currentSprite, 
+      40, 
+      40,
       this.position.x,
       this.position.y,
       this.characterWidth,
@@ -96,23 +111,23 @@ function animate () {
   });
   player.update();
 
-  // Scrolling Effect
+  // 2D Scroller Effect
   if (keys.right.pressed  && player.position.x < 400) {
-    player.velocity.x = 6;
+    player.velocity.x = 10;
   } else if (keys.left.pressed && player.position.x > 100) {
-    player.velocity.x = -6;
+    player.velocity.x = -10;
   } else {
     player.velocity.x = 0;
 
     if (keys.right.pressed) {
-      scrollOffset += 5;
+      scrollOffset += 10;
       platforms.forEach(platform => {
-        platform.position.x -= 6;
+        platform.position.x -= 10;
       });
     } else if (keys.left.pressed) {
-      scrollOffset -= 5;
+      scrollOffset -= 10;
       platforms.forEach(platform => {
-        platform.position.x += 6;
+        platform.position.x += 10;
       });
     }
   };
@@ -135,14 +150,22 @@ addEventListener('keydown', ({ key }) => {
   switch(key) {
     case 'a': 
       keys.left.pressed = true;
+      player.currentSprite = player.sprites.run.left;
       break;
     case 's': 
       break;
     case 'd': 
       keys.right.pressed = true;
-      break;
+      player.currentSprite = player.sprites.run.right;
+    break;
     case 'w': 
       if (player.velocity.y === 0) player.velocity.y -= 12;
+      
+      if(keys.right.pressed) {
+        player.currentSprite = player.sprites.jump.right;
+      } else if (keys.left.pressed) {
+        player.currentSprite = player.sprites.jump.left;
+      }
       break;
   };
 });
@@ -151,11 +174,13 @@ addEventListener('keyup', ({ key }) => {
   switch(key) {
     case 'a': 
       keys.left.pressed = false;
+      if (!keys.right.pressed) player.currentSprite = player.sprites.stand.left;
       break;
     case 's': 
       break;
     case 'd': 
       keys.right.pressed = false;
+      if (!keys.left.pressed) player.currentSprite = player.sprites.stand.right;
       break;
     case 'w': 
       break;
