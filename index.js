@@ -1,16 +1,22 @@
+const spriteSheet = new Image();
+spriteSheet.src = './assets/sprite_warrior_standing.png';
+spriteSheet.onload = animate;
+
 const canvas = document.querySelector('canvas');
 const c = canvas.getContext('2d');
 
 canvas.width = innerWidth;
 canvas.height = innerHeight;
 
+const numFrames = 6;
+let currentFrame = 0;
 const gravity = 0.5;
 
 class Player {
   constructor() {
     this.position = {
       x: 100,
-      y: 100
+      y: 400
     };
 
     this.velocity = {
@@ -18,21 +24,32 @@ class Player {
       y: 0
     };
     
-    this.width = 30;
-    this.height = 30;
+    this.frameWidth = 40;
+    this.frameHeight = 40;
+    this.characterWidth = 80;
+    this.characterHeight = 80;
   };
 
   draw() {
-    c.fillStyle = 'red';
-    c.fillRect(this.position.x, this.position.y, this.width, this.height);
+    c.drawImage(
+      spriteSheet,
+      currentFrame * this.frameWidth, 
+      0, 
+      this.frameWidth, 
+      this.frameHeight,
+      this.position.x,
+      this.position.y,
+      this.characterWidth,
+      this.characterHeight
+    )
   };
 
   update() {
     this.draw();
     this.position.x += this.velocity.x;
     this.position.y += this.velocity.y;
-
-    if (this.position.y + this.height + this.velocity.y <= canvas.height) {
+    
+    if (this.position.y + this.characterHeight + this.velocity.y <= canvas.height) {
       this.velocity.y += gravity;
     } else {
       this.velocity.y = 0;
@@ -69,7 +86,7 @@ const keys = {
 
 let scrollOffset = 0;
 
-const platforms = [new Platform({x: 200, y: 300}), new Platform({x: 500, y: 170})];
+const platforms = [new Platform({x: 200, y: 450}), new Platform({x: 500, y: 370})];
 
 function animate () {
   requestAnimationFrame(animate);
@@ -101,7 +118,7 @@ function animate () {
 
   // Platform Collision
   platforms.forEach(platform => {
-    if (player.position.y + player.height <= platform.position.y && player.position.y + player.height + player.velocity.y >= platform.position.y && player.position.x + player.width >= platform.position.x && player.position.x + player.width <= platform.position.x + platform.width) {
+    if (player.position.y + player.characterHeight <= platform.position.y && player.position.y + player.characterHeight + player.velocity.y >= platform.position.y && player.position.x + player.characterWidth >= platform.position.x && player.position.x + player.characterWidth <= platform.position.x + platform.width) {
       player.velocity.y = 0;
     }
   });
@@ -112,7 +129,7 @@ function animate () {
   }
 };
 
-animate();
+// animate();
 
 addEventListener('keydown', ({ key }) => {
   switch(key) {
