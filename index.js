@@ -1,5 +1,5 @@
 const spriteSheet = new Image();
-spriteSheet.src = './assets/sprite_warrior_standing.png';
+spriteSheet.src = './assets/female_warrior.png';
 spriteSheet.onload = animate;
 
 const canvas = document.querySelector('canvas');
@@ -8,8 +8,6 @@ const c = canvas.getContext('2d');
 canvas.width = innerWidth;
 canvas.height = innerHeight;
 
-const numFrames = 6;
-let currentFrame = 0;
 const gravity = 0.5;
 
 class Player {
@@ -24,6 +22,7 @@ class Player {
       y: 0
     };
     
+    this.frames = 0;
     this.frameWidth = 40;
     this.frameHeight = 40;
     this.characterWidth = 80;
@@ -33,7 +32,7 @@ class Player {
   draw() {
     c.drawImage(
       spriteSheet,
-      currentFrame * this.frameWidth, 
+      this.frames * this.frameWidth, 
       0, 
       this.frameWidth, 
       this.frameHeight,
@@ -45,6 +44,7 @@ class Player {
   };
 
   update() {
+    this.frames = (this.frames + 1) % 24;
     this.draw();
     this.position.x += this.velocity.x;
     this.position.y += this.velocity.y;
@@ -86,7 +86,7 @@ const keys = {
 
 let scrollOffset = 0;
 
-const platforms = [new Platform({x: 200, y: 450}), new Platform({x: 500, y: 370})];
+const platforms = [new Platform({x: 200, y: 450}), new Platform({x: 500, y: 370}), new Platform({x: 650, y: 250})];
 
 function animate () {
   requestAnimationFrame(animate);
@@ -96,6 +96,7 @@ function animate () {
   });
   player.update();
 
+  // Scrolling Effect
   if (keys.right.pressed  && player.position.x < 400) {
     player.velocity.x = 6;
   } else if (keys.left.pressed && player.position.x > 100) {
@@ -129,8 +130,7 @@ function animate () {
   }
 };
 
-// animate();
-
+// Character Movement
 addEventListener('keydown', ({ key }) => {
   switch(key) {
     case 'a': 
