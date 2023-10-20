@@ -1,9 +1,10 @@
+// Adding Image Assets
 const spriteSheet = {
   warrior: new Image(),
   sky: new Image(),
   mountains: new Image(),
   bgtrees: new Image(),
-  shrubs: new Image(),
+  fgtrees: new Image(),
   ground: new Image()
 };
 
@@ -11,21 +12,24 @@ spriteSheet.warrior.src = './assets/female_warrior.png';
 spriteSheet.sky.src = './assets/5_sky.png';
 spriteSheet.mountains.src = './assets/4_mountains.png';
 spriteSheet.bgtrees.src = './assets/3_bg_trees.png';
-spriteSheet.shrubs.src = './assets/2_shrubs.png';
+spriteSheet.fgtrees.src = './assets/2_fg_trees.png';
 spriteSheet.ground.src = './assets/1_ground.png';
 spriteSheet.warrior.onload = animate;
 
+// Canvas 2d Context
 const canvas = document.querySelector('canvas');
 const c = canvas.getContext('2d');
 
-canvas.width = 3000;
+canvas.width = innerWidth;
 canvas.height = 550;
-const gravity = 1.8;
 
+const gravity = 0.8;
+
+// Create Player
 class Player {
   constructor() {
     this.position = {
-      x: 100,
+      x: 200,
       y: 440
     };
 
@@ -85,23 +89,7 @@ class Player {
   };
 };
 
-// class Platform {
-//   constructor({x, y}) {
-//     this.position = {
-//       x,
-//       y,
-//     },
-
-//     this.width = 200;
-//     this.height = 20;
-//   };
-
-//   draw() {
-//     c.fillStyle = '#333';
-//     c.fillRect(this.position.x, this.position.y, this.width, this.height);
-//   };
-// };
-
+// Create Background
 class Scenery {
   constructor({x, y, image}) {
     this.position = {
@@ -118,6 +106,23 @@ class Scenery {
     c.drawImage(this.image, this.position.x, this.position.y);
   };
 };
+
+// class Platform {
+//   constructor({x, y}) {
+//     this.position = {
+//       x,
+//       y,
+//     },
+
+//     this.width = 200;
+//     this.height = 20;
+//   };
+
+//   draw() {
+//     c.fillStyle = '#333';
+//     c.fillRect(this.position.x, this.position.y, this.width, this.height);
+//   };
+// };
 
 let scrollOffset = 0;
 
@@ -137,8 +142,9 @@ const parallax = [
   new Scenery({x: 0, y: 0, image: spriteSheet.sky}), 
   new Scenery({x: 0, y: 0, image: spriteSheet.mountains}), 
   new Scenery({x: 0, y: 0, image: spriteSheet.bgtrees}), 
-  new Scenery({x: 0, y: 0, image: spriteSheet.shrubs}), 
-  new Scenery({x: 0, y: 0, image: spriteSheet.ground})
+  new Scenery({x: 0, y: 0, image: spriteSheet.fgtrees}), 
+  new Scenery({x: 0, y: 0, image: spriteSheet.ground}),
+  new Scenery({x: canvas.width, y: 0, image: spriteSheet.ground})
 ];
 
 const player = new Player();
@@ -167,21 +173,21 @@ function animate () {
   } else {
     player.velocity.x = 0;
 
-    if (keys.right.pressed) {
+    if (keys.right.pressed && scrollOffset < canvas.width * 4) {
       scrollOffset += 20;
       // platforms.forEach(platform => {
       //   platform.position.x -= 20;
       // });
       parallax.forEach((scene, index) => {
-        scene.position.x -= (1 + index);
+        scene.position.x -= (6 + (index * 2));
       });
-    } else if (keys.left.pressed) {
+    } else if (keys.left.pressed && scrollOffset > 0) {
       scrollOffset -= 20;
       // platforms.forEach(platform => {
       //   platform.position.x += 20;
       // });
       parallax.forEach((scene, index) => {
-        scene.position.x += (1 + index);
+        scene.position.x += (6 + (index * 2));
       });
     };
   };
@@ -194,9 +200,24 @@ function animate () {
   // });
 
   // End of level
-  if (scrollOffset > 2000) {
-    // Do something here
-  }
+  const endGame = document.createElement('div');
+  endGame.classList.add('fade-in');
+  document.body.appendChild(endGame);
+  
+  endGame.textContent = '...the prince is in an other forest!';
+  endGame.style.position = 'absolute';
+  endGame.style.top = '20%';
+  endGame.style.right = '10%';
+  endGame.style.color = '#fff';
+  endGame.style.fontSize = '2rem';
+  endGame.style.opacity = 0;
+  
+  const fadeIn = document.querySelector('.fade-in');
+
+  if (scrollOffset > 3000) {
+    fadeIn.style.opacity = 1;
+    fadeIn.style.transition = 'opacity 1s ease-in-out';
+  };
 };
 
 // Character Movement
